@@ -11,7 +11,7 @@ function distro(options) {
         var r = Math.floor(randn_bm() * options.size);
 
         var found = false;
-        $.each(bin, function(i, item) {
+        $.each(bin, function (i, item) {
             if (item.index == r) {
                 found = i;
                 return false;
@@ -29,38 +29,40 @@ function distro(options) {
     }
 
     // Sort the bin
-    bin.sort(function(a, b) {
+    bin.sort(function (a, b) {
         if (a.index > b.index) return 1;
         if (a.index < b.index) return -1;
         return 0;
     });
 
     // Set the max and min values
-    $.each(bin, function(i, item) {
+    $.each(bin, function (i, item) {
         max = item.index > max ? item.index : max;
         min = item.index < min ? item.index : min;
     });
 
     return {
-        draw: function($node) {
-            var w = $node.width(),
-                h = $node.height(),
+        draw: function ($node) {
+            var plotWidth = $node.width(),
+                plotHeight = $node.height(),
                 ctx = $node.get(0).getContext('2d'),
-                horizontalScale = w / (max - min),
-                imageData = ctx.createImageData(1, 1),
-                pixel = imageData.data;
+                horizontalScale = plotWidth / (max - min + 1);
 
-            pixel[0] = 255;
-            pixel[1] = 0;
-            pixel[2] = 0;
-            pixel[3] = 1;
+            console.log('w', plotWidth, 'h', plotHeight);
 
-            $.each(bin, function(i, item) {
-                var x = (item.index - min) * horizontalScale,
-                    y = item.count;
+            $.each(bin, function (i, item) {
+                var x = Math.floor((item.index - min) * horizontalScale),
+                    w = Math.floor(horizontalScale - 1),
+                    y = plotHeight - item.count * 10,
+                    h = item.count * 10;
 
-                console.log(x, y);
-                ctx.putImageData(imageData, x, y);
+                console.log(x, y, w, h);
+                if (x<100) {
+                    ctx.fillStyle="red";
+                } else {
+                    ctx.fillStyle="black";
+                }
+                //ctx.fillRect(x, y, w, h);
             });
         }
     };
@@ -82,17 +84,22 @@ function init(options) {
     $can.css({
         'border': '1px solid lightgray'
     });
+
+    console.log(options);
+    var ctx = $can.get(0).getContext('2d');
+    ctx.fillStyle="blue";
+    ctx.fillRect(0,options.h-10,100,10);
 }
 
 var node = $('#mycan'),
     bin = distro({
-        size: 3,
-        count: 20
+        size: 5,
+        count: 5
     });
 
 init({
     node: node,
-    w: 490,
+    w: 500,
     h: 200
 });
 
