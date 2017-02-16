@@ -46,23 +46,23 @@ function distro(options) {
             var plotWidth = $node.width(),
                 plotHeight = $node.height(),
                 ctx = $node.get(0).getContext('2d'),
-                horizontalScale = plotWidth / (max - min + 1);
+                horizontalScale = plotWidth / (max - min + 1),
+                verticalScale,
+                maxCount=0;
 
-            console.log('w', plotWidth, 'h', plotHeight);
+
+            $.each(bin, function (i, item){
+                maxCount = item.count > maxCount ? item.count: maxCount;
+            });
+            verticalScale = plotHeight/maxCount;
 
             $.each(bin, function (i, item) {
                 var x = Math.floor((item.index - min) * horizontalScale),
                     w = Math.floor(horizontalScale - 1),
-                    y = plotHeight - item.count * 10,
-                    h = item.count * 10;
+                    y = plotHeight - item.count * verticalScale,
+                    h = item.count * verticalScale;
 
-                console.log(x, y, w, h);
-                if (x<100) {
-                    ctx.fillStyle="red";
-                } else {
-                    ctx.fillStyle="black";
-                }
-                //ctx.fillRect(x, y, w, h);
+                ctx.fillRect(x, y, w, h);
             });
         }
     };
@@ -79,22 +79,18 @@ function randn_bm() {
 function init(options) {
     var $can = options.node;
 
-    options.w && $can.width(options.w);
-    options.h && $can.height(options.h);
+    options.w && $can.attr('width',options.w);
+    options.w && $can.attr('height',options.h);
+
     $can.css({
         'border': '1px solid lightgray'
     });
-
-    console.log(options);
-    var ctx = $can.get(0).getContext('2d');
-    ctx.fillStyle="blue";
-    ctx.fillRect(0,options.h-10,100,10);
 }
 
 var node = $('#mycan'),
     bin = distro({
         size: 5,
-        count: 5
+        count: 50000
     });
 
 init({
